@@ -26,13 +26,14 @@ on:
   workflow_dispatch:
 
 jobs:
-  check-server:
+  checkout:
     runs-on: ubuntu-latest
     container:
       image: plugfox/flutter:dev
+      options: --user root
     steps:
       - uses: actions/checkout@v2
-      - name: 🔎 Checkout server source code
+      - name: 🔎 Checkout source code
         run: |
           echo Install Dependencies; \
             flutter pub get
