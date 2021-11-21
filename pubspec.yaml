@@ -1,0 +1,75 @@
+name: router
+description: Router
+
+publish_to: 'none'
+
+version: 0.0.1+1
+
+environment:
+  sdk: ">=2.15.0-268.18.beta <3.0.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+  # Annotation & Code-generation
+  meta: ^1.7.0
+
+  # Storage and SQL
+  shared_preferences: ^2.0.5
+
+  # Utility & Helpers
+  multiline: ^3.0.0
+  collection: ^1.15.0
+  platform_info: ^3.1.0
+  l: ^3.0.1
+  url_launcher: ^6.0.3
+  #markdown: ^4.0.1
+
+  # Widgets
+  #flutter_markdown: ^0.6.8
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+
+  build_runner: ^2.1.4
+  build_web_compilers: ^3.2.1
+  dart_code_metrics: ^4.5.0
+  flutter_lints: ^1.0.4
+  pubspec_generator: ^3.0.1
+  #flutter_gen_runner: ^4.0.1
+
+#dependency_overrides:
+#  analyzer: '0.39.14'
+
+# Flutter assets and config
+flutter:
+  uses-material-design: true
+  #generate: true
+  #assets:
+  #  - assets/
+
+# Flutter assets codegen
+#flutter_gen:
+#  output: lib/src/common/constant/
+#  line_length: 120
+
+# Generate app icon
+# flutter pub run flutter_launcher_icons:main
+#flutter_icons:
+#  image_path: "assets/icon/1x/icon.png"
+#  image_path_android: "assets/icon/1x/icon.png"
+#  image_path_ios: "assets/icon/1x/icon.png"
+#  android: true # can specify file name here e.g. "ic_launcher"
+#  ios: true # can specify file name here e.g. "My-Launcher-Icon"
+#  # adaptive_icon_background: "assets/icons/background.png" # only available for Android 8.0 devices and above
+#  # adaptive_icon_foreground: "assets/icons/foreground.png" # only available for Android 8.0 devices and above
+
+#flutter_intl:
+#  enabled: true # Required. Must be set to true to activate the plugin. Default: false
+#  class_name: Localized # Optional. Sets the name for the generated localization class. Default: S
+#  main_locale: en # Optional. Sets the main locale used for generating localization files. Provided value should consist of language code and optional script and country codes separated with underscore (e.g. 'en', 'en_GB', 'zh_Hans', 'zh_Hans_CN'). Default: en
+#  arb_dir: lib/src/common/localization # Optional. Sets the directory of your ARB resource files. Provided value should be a valid path on your system. Default: lib/l10n
+#  output_dir: lib/src/common/localization # Optional. Sets the directory of generated localization files. Provided value should be a valid path on your system. Default: lib/generated
+#  use_deferred_loading: false # Optional. Must be set to true to generate localization code that is loaded with deferred loading. Default: false
