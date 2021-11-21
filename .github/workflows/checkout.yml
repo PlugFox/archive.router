@@ -11,7 +11,7 @@ on:
       - 'hotfix/**'
       - 'support/**'
     paths:
-      - 'server/**.dart'
+      - 'lib/**.dart'
   pull_request:
     branches:
       - 'master'
@@ -22,7 +22,7 @@ on:
       - 'hotfix/**'
       - 'support/**'
     paths:
-      - 'server/**.dart'
+      - 'lib/**.dart'
   workflow_dispatch:
 
 jobs:
@@ -37,6 +37,6 @@ jobs:
           echo Install Dependencies; \
             flutter pub get
           echo Check format; \
-            dart format --set-exit-if-changed -l 120 -o none .
+            dart format --set-exit-if-changed -l 120 -o none lib
           echo Check analyzer; \
             flutter analyze --fatal-infos --fatal-warnings lib
