@@ -9,6 +9,7 @@ import 'package:router/src/common/router/router_delegate.dart';
 
 typedef NavigateCallback = IRouteConfiguration Function(IRouteConfiguration configuration);
 
+/// Скоуп для управления роутингом и навигацией приложения
 @immutable
 class AppRouter extends InheritedNotifier {
   const AppRouter({
@@ -69,12 +70,18 @@ class AppRouter extends InheritedNotifier {
   static Future<bool> maybePop<T extends Object?>(
     BuildContext context, [
     T? result,
-  ]) =>
-      navigatorOf(context)?.maybePop<T>(result) ?? Future<bool>.value(false);
+  ]) {
+    l.i('Попробуем вернуться к предидущему роуту');
+    return navigatorOf(context)?.maybePop<T>(result) ?? Future<bool>.value(false);
+  }
 
   /// Обновить конфигурацию роутера и перейти на новую страницу
   /// См также [Router.neglect], [Router.navigate]
-  static void navigate(BuildContext context, NavigateCallback callback, {NavigateMode mode = NavigateMode.neglect}) {
+  static void navigate(
+    BuildContext context,
+    NavigateCallback callback, {
+    NavigateMode mode = NavigateMode.auto,
+  }) {
     final delegate = of(context, listen: false).router;
     switch (mode) {
       case NavigateMode.force:
@@ -106,10 +113,17 @@ class AppRouter extends InheritedNotifier {
 
   /// Обновить конфигурацию роутера и перейти на новую страницу
   /// См также [RouterDelegate.popRoute]
-  static Future<bool> pop(BuildContext context) => of(context, listen: false).router.popRoute();
+  static Future<bool> pop(BuildContext context) {
+    l.i('Вернемся к предидущему роуту');
+    return of(context, listen: false).router.popRoute();
+  }
 
   /// Перейти на начальную страницу
-  static void goHome<T extends Object?>(BuildContext context, {NavigateMode mode = NavigateMode.auto}) => navigate(
+  static void goHome<T extends Object?>(
+    BuildContext context, {
+    NavigateMode mode = NavigateMode.auto,
+  }) =>
+      navigate(
         context,
         (_) => const HomeRouteConfiguration(),
         mode: mode,
@@ -128,16 +142,18 @@ class AppRouter extends InheritedNotifier {
     BuildContext context,
     WidgetBuilder builder, {
     Object? arguments,
-  }) =>
-      navigatorOf(context)?.push<T>(
-        MaterialPageRoute<T>(
-          builder: builder,
-          settings: RouteSettings(
-            arguments: arguments,
+  }) {
+    l.i('Перейдем на новый анонимный роут');
+    return navigatorOf(context)?.push<T>(
+          MaterialPageRoute<T>(
+            builder: builder,
+            settings: RouteSettings(
+              arguments: arguments,
+            ),
           ),
-        ),
-      ) ??
-      Future<T?>.value(null);
+        ) ??
+        Future<T?>.value(null);
+  }
 
   /// Отобразить диалог от [AppRouter]
   /// См также [showDialog]
@@ -146,6 +162,7 @@ class AppRouter extends InheritedNotifier {
     WidgetBuilder builder, {
     RouteSettings? routeSettings,
   }) {
+    l.i('Отобразим ModalDialog');
     final navigator = navigatorOf(context);
     if (navigator == null) return Future<T?>.value(null);
     return showDialog<T>(
@@ -172,20 +189,22 @@ class AppRouter extends InheritedNotifier {
     bool isDismissible = true,
     bool enableDrag = true,
     RouteSettings? routeSettings,
-  }) =>
-      showModalBottomSheet<T>(
-        context: navigatorOf(context)!.context,
-        builder: builder,
-        backgroundColor: backgroundColor,
-        elevation: elevation,
-        shape: shape,
-        clipBehavior: clipBehavior,
-        barrierColor: barrierColor,
-        isScrollControlled: isScrollControlled,
-        isDismissible: isDismissible,
-        enableDrag: enableDrag,
-        //routeSettings: routeSettings,
-      );
+  }) {
+    l.i('Отобразим ModalBottomSheet');
+    return showModalBottomSheet<T>(
+      context: navigatorOf(context)!.context,
+      builder: builder,
+      backgroundColor: backgroundColor,
+      elevation: elevation,
+      shape: shape,
+      clipBehavior: clipBehavior,
+      barrierColor: barrierColor,
+      isScrollControlled: isScrollControlled,
+      isDismissible: isDismissible,
+      enableDrag: enableDrag,
+      //routeSettings: routeSettings,
+    );
+  }
 }
 
 /// Управляет режимом навигации [AppRouter.navigate]

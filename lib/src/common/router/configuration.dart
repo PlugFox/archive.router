@@ -1,4 +1,6 @@
 import 'package:flutter/widgets.dart';
+import 'package:l/l.dart';
+import 'package:router/src/common/router/pages.dart';
 
 /// Конфигурация состояния приложения и всех его маршрутов
 @immutable
@@ -16,18 +18,76 @@ abstract class IRouteConfiguration implements RouteInformation {
   String get location;
 
   /// Состояние конфигурации
-  /// Где ключ хэштаблицы - название страницы
+  /// Где ключ хэштаблицы - [AppPage.location] страницы
   /// А значение - хэштаблица состояния страницы
   /// См также [RouteInformation.state]
   @override
-  Map<String, Map<String, Object?>?>? get state;
+  Map<String, Object?>? get state;
+
+  /// Добавить страницу, роут приложения к конфигурации
+  /// выпустив новую конфигурацию на основании текущей
+  IRouteConfiguration add(AppPage page);
 }
 
-abstract class AppConfigurationBase implements IRouteConfiguration {
-  const AppConfigurationBase();
+/// Базовая конфигурация
+abstract class RouteConfigurationBase implements IRouteConfiguration {
+  const RouteConfigurationBase();
+
+  @override
+  bool get isRoot => previous != null;
+
+  @override
+  IRouteConfiguration? get previous {
+    IRouteConfiguration? getPrevious() {
+      if (location == '/' || location.isEmpty) return null;
+      try {
+        final uri = Uri.parse(location);
+        final pathSegments = uri.pathSegments;
+        if (pathSegments.length == 1) {
+          return const HomeRouteConfiguration();
+        }
+        final newLocation = pathSegments.sublist(0, pathSegments.length - 1).join('/');
+        final newState = state;
+        if (newState != null) {
+          newState.remove(pathSegments.last);
+        }
+        return DynamicRouteConfiguration(
+          newLocation,
+          newState,
+        );
+      } on Object {
+        return null;
+      }
+    }
+
+    final prev = getPrevious();
+    l.v6('RouteConfiguration.previous => ${prev?.location ?? '<null>'}');
+    return prev;
+  }
+
+  @override
+  IRouteConfiguration add(AppPage page) {
+    if (page.location.isEmpty) return this;
+    final arguments = page.arguments;
+    final newLocation = location.endsWith('/') ? '$location${page.location}' : '$location/${page.location}';
+    if (arguments is Map<String, Object?> || state != null) {
+      return DynamicRouteConfiguration(
+        newLocation,
+        <String, Object?>{
+          ...?state,
+          if (arguments is Object) page.location: arguments,
+        },
+      );
+    }
+    return DynamicRouteConfiguration(newLocation);
+  }
+
+  @override
+  String toString() => 'RouteConfiguration($location)';
 }
 
-class HomeRouteConfiguration extends AppConfigurationBase {
+/// Презет конфигурации домашнего, корневого роута
+class HomeRouteConfiguration extends RouteConfigurationBase {
   const HomeRouteConfiguration();
 
   @override
@@ -40,10 +100,11 @@ class HomeRouteConfiguration extends AppConfigurationBase {
   String get location => '/';
 
   @override
-  Map<String, Map<String, Object?>?>? get state => <String, Map<String, Object?>?>{};
+  Map<String, Object?>? get state => <String, Object?>{};
 }
 
-class NotFoundRouteConfiguration extends AppConfigurationBase {
+/// Конфигурация описывающая отсутсвующий контент
+class NotFoundRouteConfiguration extends RouteConfigurationBase {
   const NotFoundRouteConfiguration();
 
   @override
@@ -56,38 +117,17 @@ class NotFoundRouteConfiguration extends AppConfigurationBase {
   String get location => '/404';
 
   @override
-  Map<String, Map<String, Object?>?>? get state => <String, Map<String, Object?>?>{};
+  Map<String, Object?>? get state => <String, Object?>{};
 }
 
-class DynamicRouteConfiguration extends AppConfigurationBase {
+/// Динамическая конфигурация, получаемая путем преобразования заданных презетов
+/// или при изменении конфигурации на платформе
+class DynamicRouteConfiguration extends RouteConfigurationBase {
   const DynamicRouteConfiguration(this.location, [this.state]);
-
-  @override
-  bool get isRoot => previous != null;
-
-  @override
-  IRouteConfiguration? get previous {
-    if (location == '/') return null;
-    try {
-      final uri = Uri.parse(location);
-      final pathSegments = uri.pathSegments;
-      final newLocation = pathSegments.sublist(0, pathSegments.length - 1).join('/');
-      final newState = state;
-      if (newState != null) {
-        newState.remove(pathSegments.last);
-      }
-      return DynamicRouteConfiguration(
-        newLocation,
-        newState,
-      );
-    } on Object {
-      return null;
-    }
-  }
 
   @override
   final String location;
 
   @override
-  final Map<String, Map<String, Object?>?>? state;
+  final Map<String, Object?>? state;
 }

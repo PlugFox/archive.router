@@ -1,11 +1,11 @@
 {
-    "name": "router",
-    "short_name": "router",
+    "name": "Демонстрация роутинга",
+    "short_name": "Router",
+    "description": "Демонстрация роутинга",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",
     "theme_color": "#0175C2",
-    "description": "Router",
     "orientation": "portrait-primary",
     "prefer_related_applications": false,
     "icons": [

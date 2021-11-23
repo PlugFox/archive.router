@@ -1,16 +1,23 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:l/l.dart';
 import 'package:router/src/common/router/configuration.dart';
 import 'package:router/src/common/router/navigator_observer.dart';
 import 'package:router/src/common/router/not_found_screen.dart';
 import 'package:router/src/common/router/pages_builder.dart';
 import 'package:router/src/common/router/router.dart';
 
+export 'package:router/src/common/router/configuration.dart';
+export 'package:router/src/common/router/navigator_observer.dart';
+export 'package:router/src/common/router/not_found_screen.dart';
+export 'package:router/src/common/router/pages_builder.dart';
+export 'package:router/src/common/router/router.dart';
+
 // ignore_for_file: prefer_mixin, avoid_types_on_closure_parameters
 
 class AppRouterDelegate extends RouterDelegate<IRouteConfiguration> with ChangeNotifier {
   AppRouterDelegate({
-    required final IRouteConfiguration initialConfiguration,
+    final IRouteConfiguration initialConfiguration = const HomeRouteConfiguration(),
   })  : _currentConfiguration = initialConfiguration,
         pageObserver = PageObserver(),
         modalObserver = ModalObserver() {
@@ -44,7 +51,8 @@ class AppRouterDelegate extends RouterDelegate<IRouteConfiguration> with ChangeN
           ],
           pages: pages,
           onPopPage: (Route<Object?> route, Object? result) {
-            if (configuration.isRoot || !route.didPop(result)) {
+            l.v6('RouterDelegate.onPopPage(${route.settings.name}, ${result?.toString() ?? '<null>'})');
+            if (!route.didPop(result)) {
               return false;
             }
             setNewRoutePath(configuration.previous ?? const NotFoundRouteConfiguration());
@@ -57,6 +65,7 @@ class AppRouterDelegate extends RouterDelegate<IRouteConfiguration> with ChangeN
 
   @override
   Future<bool> popRoute() {
+    l.v6('RouterDelegate.popRoute()');
     final navigator = pageObserver.navigator;
     if (currentConfiguration.isRoot || navigator == null) return SynchronousFuture<bool>(false);
     return navigator.maybePop();
@@ -64,9 +73,26 @@ class AppRouterDelegate extends RouterDelegate<IRouteConfiguration> with ChangeN
 
   @override
   Future<void> setNewRoutePath(IRouteConfiguration configuration) {
+    l.v6('RouterDelegate.setNewRoutePath($configuration)');
     _currentConfiguration = configuration;
     notifyListeners();
-    return SynchronousFuture(null);
+    return SynchronousFuture<void>(null);
+  }
+
+  @override
+  Future<void> setRestoredRoutePath(IRouteConfiguration configuration) {
+    l.v6('RouterDelegate.setRestoredRoutePath($configuration)');
+    if (currentConfiguration.isRoot && !configuration.isRoot) {
+      // Если сейчас пользователь находиться в корне и новая, востанавливаемая конфигурация - не корень
+      return setNewRoutePath(configuration);
+    }
+    return SynchronousFuture<void>(null);
+  }
+
+  @override
+  Future<void> setInitialRoutePath(IRouteConfiguration configuration) {
+    l.v6('RouterDelegate.setInitialRoutePath($configuration)');
+    return setNewRoutePath(configuration);
   }
 
   Route<void> _onUnknownRoute(RouteSettings settings) => MaterialPageRoute<void>(

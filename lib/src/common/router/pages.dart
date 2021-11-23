@@ -1,43 +1,49 @@
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:router/src/common/router/not_found_screen.dart';
+import 'package:router/src/feature/home/widget/home_screen.dart';
+import 'package:router/src/feature/settings/widget/settings_screen.dart';
 
+/// Базовый класс роута для приложения, с ним работает корневой роутер
 @immutable
 abstract class AppPage<T extends Object?> extends Page<T> {
   AppPage({
-    required this.path,
-    Map<String, Object?>? arguments,
+    required this.location,
+    Object? arguments,
     String? restorationId,
     this.maintainState = true,
     this.fullscreenDialog = false,
     LocalKey? key,
   }) : super(
-          name: path,
+          name: location,
           arguments: arguments,
-          restorationId: restorationId ?? path,
-          key: key ?? ValueKey<String>(path),
+          restorationId: restorationId ?? location,
+          key: key ?? ValueKey<String>(location),
         );
 
+  /// Создать роут из сегмента пути
   static AppPage fromPath({
-    required final String path,
-    final Map<String, Object?>? arguments,
+    required final String location,
+    final Object? arguments,
   }) {
-    // Предполагаем, что каждый сегмент состоит из имени, а затем через "-" идут
-    final segments = path.split('-');
-    final name = segments.firstOrNull;
+    // Предполагаем, что каждый сегмент состоит из имени,
+    // описывающий тип роута, а затем, через "-", идут
+    // дополнительные, позиционные, параметры, например id
+    final segments = location.split('-');
+    final name = segments.firstOrNull?.trim().toLowerCase();
     assert(
       name != null && name.isNotEmpty && name.codeUnits.every((e) => e > 96 && e < 123),
       'Имя должно состоять только из символов латинского алфавита в нижнем регистре: a..z',
     );
     switch (name) {
-      case null:
-      case '':
       case '/':
-      case '*':
-      case 'home':
         return HomePage();
+      case 'settings':
+      case 'setting':
+      case 'tuning':
+      case 'tune':
+        return SettingsPage();
       case 'not_found':
-      case 'notfound':
       case '404':
       default:
         return NotFoundPage();
@@ -45,7 +51,8 @@ abstract class AppPage<T extends Object?> extends Page<T> {
   }
 
   /// Сегмент пути с которым создался роут
-  final String path;
+  /// Например для экрана настроек это "settings"
+  final String location;
 
   /// {@macro flutter.widgets.ModalRoute.maintainState}
   final bool maintainState;
@@ -68,20 +75,31 @@ abstract class AppPage<T extends Object?> extends Page<T> {
 class HomePage extends AppPage<void> {
   HomePage()
       : super(
-          path: '/',
+          location: '/',
         );
 
   @override
-  Widget build(BuildContext context) => const NotFoundScreen();
+  Widget build(BuildContext context) => const HomeScreen();
 }
 
 /// Роут не найден
 class NotFoundPage extends AppPage<void> {
   NotFoundPage()
       : super(
-          path: '404',
+          location: '404',
         );
 
   @override
   Widget build(BuildContext context) => const NotFoundScreen();
+}
+
+/// Настройки
+class SettingsPage extends AppPage<void> {
+  SettingsPage()
+      : super(
+          location: 'settings',
+        );
+
+  @override
+  Widget build(BuildContext context) => const SettingsScreen();
 }
