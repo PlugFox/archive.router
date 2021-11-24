@@ -29,7 +29,7 @@ jobs:
   checkout:
     runs-on: ubuntu-latest
     container:
-      image: plugfox/flutter:dev
+      image: plugfox/flutter:beta
       options: --user root
     steps:
       - uses: actions/checkout@v2
