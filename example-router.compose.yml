@@ -1,0 +1,11 @@
+version: '3.3'
+
+services:
+  example-router-service:
+    container_name: 'example-router'
+    ports:
+      - '80:80'
+    image: registry.plugfox.dev/example-router
+    build:
+      context: ./
+      dockerfile: ./dockerfiles/example-router.dockerfile

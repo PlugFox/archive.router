@@ -11,9 +11,10 @@ mixin _RestoreRouteInformationMixin on RouteInformationParser<IRouteConfiguratio
   @override
   RouteInformation? restoreRouteInformation(IRouteConfiguration configuration) {
     try {
-      l.v6('RouteInformationParser.restoreRouteInformation(${configuration.location})');
+      final location = _reduceLocation(configuration.location);
+      l.v6('RouteInformationParser.restoreRouteInformation($location)');
       return RouteInformation(
-        location: p.normalize(p.join('/', configuration.location)),
+        location: location,
         state: configuration.state,
       );
     } on Object catch (error) {
@@ -27,9 +28,9 @@ mixin _ParseRouteInformationMixin on RouteInformationParser<IRouteConfiguration>
   @override
   Future<IRouteConfiguration> parseRouteInformation(RouteInformation routeInformation) {
     try {
-      l.v6('RouteInformationParser.parseRouteInformation(${routeInformation.location})');
       if (routeInformation is IRouteConfiguration) return SynchronousFuture<IRouteConfiguration>(routeInformation);
-      final location = p.normalize(p.join('/', routeInformation.location));
+      final location = _reduceLocation(routeInformation.location ?? '/');
+      l.v6('RouteInformationParser.parseRouteInformation($location)');
       var state = routeInformation.state;
       if (state is! Map<String, Map<String, Object?>?>?) {
         state = null;
@@ -41,4 +42,14 @@ mixin _ParseRouteInformationMixin on RouteInformationParser<IRouteConfiguration>
       return SynchronousFuture<IRouteConfiguration>(const NotFoundRouteConfiguration());
     }
   }
+}
+
+String _reduceLocation(String sourceLocation) {
+  final segments = <String>[];
+  sourceLocation.toLowerCase().split('/').map<String>((e) => e.trim()).where((e) => e.isNotEmpty).forEach(
+        (e) => segments
+          ..remove(e)
+          ..add(e),
+      );
+  return p.normalize(p.join('/', segments.join('/')));
 }

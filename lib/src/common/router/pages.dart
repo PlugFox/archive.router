@@ -14,7 +14,11 @@ abstract class AppPage<T extends Object?> extends Page<T> {
     this.maintainState = true,
     this.fullscreenDialog = false,
     LocalKey? key,
-  }) : super(
+  })  : assert(
+          location.toLowerCase().trim() == location,
+          'Предполагается, что адрес страницы всегда в нижнем регистре',
+        ),
+        super(
           name: location,
           arguments: arguments,
           restorationId: restorationId ?? location,
@@ -29,8 +33,8 @@ abstract class AppPage<T extends Object?> extends Page<T> {
     // Предполагаем, что каждый сегмент состоит из имени,
     // описывающий тип роута, а затем, через "-", идут
     // дополнительные, позиционные, параметры, например id
-    final segments = location.split('-');
-    final name = segments.firstOrNull?.trim().toLowerCase();
+    final segments = location.toLowerCase().split('-');
+    final name = segments.firstOrNull?.trim();
     assert(
       name != null && name.isNotEmpty && name.codeUnits.every((e) => e > 96 && e < 123),
       'Имя должно состоять только из символов латинского алфавита в нижнем регистре: a..z',
@@ -39,11 +43,7 @@ abstract class AppPage<T extends Object?> extends Page<T> {
       case '/':
         return HomePage();
       case 'settings':
-      case 'setting':
-      case 'tuning':
-      case 'tune':
         return SettingsPage();
-      case 'not_found':
       case '404':
       default:
         return NotFoundPage();

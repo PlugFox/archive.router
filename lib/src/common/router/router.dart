@@ -3,8 +3,6 @@
 import 'package:flutter/material.dart';
 import 'package:l/l.dart';
 import 'package:meta/meta.dart';
-import 'package:router/src/common/router/configuration.dart';
-import 'package:router/src/common/router/navigator_observer.dart';
 import 'package:router/src/common/router/router_delegate.dart';
 
 typedef NavigateCallback = IRouteConfiguration Function(IRouteConfiguration configuration);

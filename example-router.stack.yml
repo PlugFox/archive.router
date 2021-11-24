@@ -1,0 +1,68 @@
+# Deploy:
+# make docker-build-prod
+# make docker-push-prod
+# docker --log-level debug --host "ssh://pfx@plugfox.dev" stack deploy --compose-file ./docker/example-router.stack.yml --orchestrator swarm --prune --with-registry-auth example-router
+
+# Logs:
+# docker --log-level debug --host "ssh://pfx@plugfox.dev" service logs --no-task-ids -f -n all example-router_site
+
+version: '3.3'
+
+services:
+  site:
+    image: registry.plugfox.dev/example-router:latest
+    #volumes:
+    #  - /var/run/docker.sock:/var/run/docker.sock:ro
+    #ports:
+    #  - 80:80
+    #healthcheck:
+    #  test: curl --fail -s http://127.0.0.1:80 || exit 1
+    #  interval: 60s
+    #  timeout: 45s
+    #  retries: 3
+    environment:
+      PORT: 80
+    networks:
+      - traefik-public
+    deploy:
+      replicas: 1
+      placement:
+        constraints:
+          - node.role == worker
+      resources:
+        reservations:
+          cpus: '0.10'
+          memory: 64M
+        limits:
+          cpus: '0.25'
+          memory: 256M
+      labels:
+        ################################################################
+        # TRAEFIK CONFIG
+        traefik.enable: 'true'
+        traefik.docker.network: traefik-public
+        traefik.constraint-label: traefik-public
+
+        # HTTPS
+        traefik.http.routers.example-router-router.tls: 'true'
+        traefik.http.routers.example-router-router.entrypoints: https
+        traefik.http.routers.example-router-router.tls.certresolver: le
+
+        # plugfox.dev/api
+        traefik.http.routers.example-router-router.rule: Host(`example.plugfox.dev`) && PathPrefix(`/router`)
+        traefik.http.routers.example-router-router.priority: 1
+        traefik.http.services.example-router-service.loadbalancer.server.port: 80
+
+        # Middlewares
+        traefik.http.routers.example-router-router.middlewares: example-router-router-stripprefix,example-router-limit
+        # Match and strip prefix
+        traefik.http.middlewares.example-router-router-stripprefix.stripprefix.prefixes: /router
+        # Sets the maximum request to 1 Mb and response body to 10 Mb
+        traefik.http.middlewares.example-router-limit.buffering.maxRequestBodyBytes: 1000000
+        traefik.http.middlewares.example-router-limit.buffering.maxResponseBodyBytes: 10000000
+        ################################################################
+
+networks:
+  traefik-public:
+    external: true
+    driver: overlay
