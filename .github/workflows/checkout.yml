@@ -11,7 +11,7 @@ on:
       - 'hotfix/**'
       - 'support/**'
     paths:
-      - 'server/**.dart'
+      - 'lib/**.dart'
   pull_request:
     branches:
       - 'master'
@@ -22,21 +22,22 @@ on:
       - 'hotfix/**'
       - 'support/**'
     paths:
-      - 'server/**.dart'
+      - 'lib/**.dart'
   workflow_dispatch:
 
 jobs:
-  check-server:
+  checkout:
     runs-on: ubuntu-latest
     container:
       image: plugfox/flutter:dev
+      options: --user root
     steps:
       - uses: actions/checkout@v2
-      - name: 🔎 Checkout server source code
+      - name: 🔎 Checkout source code
         run: |
           echo Install Dependencies; \
             flutter pub get
           echo Check format; \
-            dart format --set-exit-if-changed -l 120 -o none .
+            dart format --set-exit-if-changed -l 120 -o none lib
           echo Check analyzer; \
             flutter analyze --fatal-infos --fatal-warnings lib
