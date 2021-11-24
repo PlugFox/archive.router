@@ -1,0 +1,39 @@
+name: DEPLOY
+
+on:
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: ✨ Log into registry
+        run: echo "${{ secrets.DOCKER_REGISTRY_LOGIN_PASSWORD }}" | docker login -u ${{ secrets.DOCKER_REGISTRY_LOGIN_USERNAME }} --password-stdin https://registry.plugfox.dev
+
+      - name: 🏗️ Build images
+        run: make -C ./ -f ./Makefile build-web
+
+      - name: 💾 Push images to registry
+        run: make -C ./ -f ./Makefile push
+
+      - name: 🔥 Deploy to swarm
+        run: |
+          INPUT_REMOTE_USER="${REMOTE_USER}"
+          INPUT_REMOTE_HOST="${REMOTE_HOST}"
+
+          echo "Registering SSH keys..."
+          mkdir -p "$HOME/.ssh"
+          printf '%s' "${{ secrets.DOCKER_SWARM_SSH_PRIVATE_KEY }}" >> "${HOME}/.ssh/docker"
+          chmod 600 "$HOME/.ssh/docker" && eval $(ssh-agent) && ssh-add "${HOME}/.ssh/docker"
+
+          echo "Add public key to known hosts..."
+          printf '%s %s\n' "$INPUT_REMOTE_HOST" "${{ secrets.DOCKER_SWARM_SSH_PUBLIC_KEY }}" >> "${HOME}/.ssh/known_hosts"
+
+          echo "Deploying..."
+          docker --log-level debug --host ssh://${INPUT_REMOTE_USER}@${INPUT_REMOTE_HOST} stack deploy \
+            --compose-file ./example-router.stack.yml --orchestrator swarm --prune --with-registry-auth \
+              example-router
+
+          rm -rf "$HOME/.ssh"
