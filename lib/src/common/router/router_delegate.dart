@@ -1,3 +1,5 @@
+import 'dart:math' as math;
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:l/l.dart';
@@ -6,6 +8,7 @@ import 'package:router/src/common/router/navigator_observer.dart';
 import 'package:router/src/common/router/not_found_screen.dart';
 import 'package:router/src/common/router/pages_builder.dart';
 import 'package:router/src/common/router/router.dart';
+import 'package:router/src/common/widget/router_debug_view.dart';
 
 export 'package:router/src/common/router/configuration.dart';
 export 'package:router/src/common/router/navigator_observer.dart';
@@ -41,25 +44,47 @@ class AppRouterDelegate extends RouterDelegate<IRouteConfiguration> with ChangeN
       routerDelegate: this,
       child: PagesBuilder(
         configuration: configuration,
-        builder: (context, pages, child) => Navigator(
-          transitionDelegate: const DefaultTransitionDelegate<Object?>(),
-          onUnknownRoute: _onUnknownRoute,
-          reportsRouteUpdateToEngine: true,
-          observers: <NavigatorObserver>[
-            pageObserver,
-            modalObserver,
-            //if (analytics != null) FirebaseAnalyticsObserver(analytics: analytics),
-          ],
-          pages: pages,
-          onPopPage: (Route<Object?> route, Object? result) {
-            l.v6('RouterDelegate.onPopPage(${route.settings.name}, ${result?.toString() ?? '<null>'})');
-            if (!route.didPop(result)) {
-              return false;
-            }
-            setNewRoutePath(configuration.previous ?? const NotFoundRouteConfiguration());
-            return true;
-          },
-        ),
+        builder: (context, pages, child) {
+          // Вычисляем размеры и доступность отладочной вьюхи
+          final size = MediaQuery.of(context).size;
+          final padding = size.width < 400 ? 0.0 : 12.0;
+          final width = size.width - padding * 2;
+          final height = math.min<double>(400, width / 3);
+          final showDebugView = size.height / 2 > height;
+          return Stack(
+            children: <Widget>[
+              Positioned.fill(
+                child: Navigator(
+                  transitionDelegate: const DefaultTransitionDelegate<Object?>(),
+                  onUnknownRoute: _onUnknownRoute,
+                  reportsRouteUpdateToEngine: true,
+                  observers: <NavigatorObserver>[
+                    pageObserver,
+                    modalObserver,
+                    //if (analytics != null) FirebaseAnalyticsObserver(analytics: analytics),
+                  ],
+                  pages: pages,
+                  onPopPage: (Route<Object?> route, Object? result) {
+                    l.v6('RouterDelegate.onPopPage(${route.settings.name}, ${result?.toString() ?? '<null>'})');
+                    if (!route.didPop(result)) {
+                      return false;
+                    }
+                    setNewRoutePath(configuration.previous ?? const NotFoundRouteConfiguration());
+                    return true;
+                  },
+                ),
+              ),
+              if (showDebugView)
+                Positioned(
+                  left: padding,
+                  right: padding,
+                  bottom: padding,
+                  height: height,
+                  child: const RouterDebugView(),
+                ),
+            ],
+          );
+        },
       ),
     );
   }

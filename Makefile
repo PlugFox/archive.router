@@ -40,4 +40,4 @@ push:
 
 run:
 	@echo "Run release docker image with flutter web and nginx"
-	docker run -d -p 9090:9090 --name example-router registry.plugfox.dev/example-router
+	docker run -d -p 80:80 --name example-router registry.plugfox.dev/example-router
