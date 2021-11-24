@@ -21,6 +21,7 @@ class _AppMaterialContextState extends State<AppMaterialContext> {
   @override
   Widget build(final BuildContext context) => MaterialApp.router(
         onGenerateTitle: (final context) => 'Демонстрация роутинга',
+        restorationScopeId: 'router',
         routerDelegate: _routerDelegate,
         routeInformationParser: _routeInformationParser,
         routeInformationProvider: _routeInformationProvider,
