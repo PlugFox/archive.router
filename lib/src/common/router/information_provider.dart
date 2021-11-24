@@ -1,10 +1,17 @@
+import 'dart:ui';
+
 import 'package:flutter/widgets.dart';
 import 'package:l/l.dart';
 
 class AppRouteInformationProvider extends PlatformRouteInformationProvider {
   AppRouteInformationProvider({
-    final RouteInformation initialRouteInformation = const RouteInformation(location: '/'),
-  }) : super(initialRouteInformation: initialRouteInformation);
+    final RouteInformation? initialRouteInformation,
+  }) : super(
+          initialRouteInformation: initialRouteInformation ??
+              RouteInformation(
+                location: PlatformDispatcher.instance.defaultRouteName,
+              ),
+        );
 
   @override
   // ignore: unnecessary_overrides

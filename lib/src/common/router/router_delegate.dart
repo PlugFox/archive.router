@@ -16,22 +16,23 @@ export 'package:router/src/common/router/router.dart';
 // ignore_for_file: prefer_mixin, avoid_types_on_closure_parameters
 
 class AppRouterDelegate extends RouterDelegate<IRouteConfiguration> with ChangeNotifier {
-  AppRouterDelegate({
-    final IRouteConfiguration initialConfiguration = const HomeRouteConfiguration(),
-  })  : _currentConfiguration = initialConfiguration,
-        pageObserver = PageObserver(),
-        modalObserver = ModalObserver() {
-    if (!initialConfiguration.isRoot) {
-      setInitialRoutePath(initialConfiguration);
-    }
-  }
+  AppRouterDelegate()
+      : pageObserver = PageObserver(),
+        modalObserver = ModalObserver();
 
   final PageObserver pageObserver;
   final ModalObserver modalObserver;
 
   @override
-  IRouteConfiguration get currentConfiguration => _currentConfiguration;
-  IRouteConfiguration _currentConfiguration;
+  IRouteConfiguration get currentConfiguration {
+    final configuration = _currentConfiguration;
+    if (configuration == null) {
+      throw UnsupportedError('Изначальная конфигурация не установлена');
+    }
+    return configuration;
+  }
+
+  IRouteConfiguration? _currentConfiguration;
 
   @override
   Widget build(BuildContext context) {
@@ -82,17 +83,13 @@ class AppRouterDelegate extends RouterDelegate<IRouteConfiguration> with ChangeN
   @override
   Future<void> setRestoredRoutePath(IRouteConfiguration configuration) {
     l.v6('RouterDelegate.setRestoredRoutePath($configuration)');
-    if (currentConfiguration.isRoot && !configuration.isRoot) {
-      // Если сейчас пользователь находиться в корне и новая, востанавливаемая конфигурация - не корень
-      return setNewRoutePath(configuration);
-    }
-    return SynchronousFuture<void>(null);
+    return super.setRestoredRoutePath(configuration);
   }
 
   @override
   Future<void> setInitialRoutePath(IRouteConfiguration configuration) {
     l.v6('RouterDelegate.setInitialRoutePath($configuration)');
-    return setNewRoutePath(configuration);
+    return super.setInitialRoutePath(configuration);
   }
 
   Route<void> _onUnknownRoute(RouteSettings settings) => MaterialPageRoute<void>(

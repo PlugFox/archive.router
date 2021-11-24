@@ -33,9 +33,8 @@ class NotFoundScreen extends StatelessWidget {
                   height: 75,
                   child: ElevatedButton.icon(
                     onPressed: () => pop(context),
-                    icon: Icon(
+                    icon: const Icon(
                       Icons.arrow_back,
-                      color: Theme.of(context).primaryColor,
                     ),
                     label: const Text(
                       'Вернуться',
