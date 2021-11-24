@@ -26,6 +26,10 @@ codegen: get
 outdated:
 	@flutter pub outdated
 
+serve: codegen
+	@echo "Serve as web app"
+	flutter run -d web-server
+
 build-web:
 	@echo "Build release docker image with flutter web and nginx"
 	docker-compose -f ./example-router.compose.yml build --no-cache --force-rm --compress --parallel

@@ -1,5 +1,6 @@
 // ignore_for_file: unnecessary_lambdas
 import 'dart:async';
+import 'dart:html' as html;
 
 import 'package:l/l.dart';
 import 'package:router/src/app.dart';
@@ -12,6 +13,12 @@ void run() =>
         () async {
           // Запустить приложение
           App.run();
+
+          // Удалить прогресс индикатор после запуска приложения
+          Future<void>.delayed(
+            const Duration(seconds: 1),
+            () => html.document.getElementsByClassName('loading').forEach((element) => element.remove()),
+          );
         },
         (final error, final stackTrace) {
           l.e(

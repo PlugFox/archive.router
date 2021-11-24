@@ -38,12 +38,61 @@
       transform: translate(-50%, -50%);
       font-size: 3vw;
     }
+    .loading {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      margin: 0;
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      -ms-transform: translate(-50%, -50%);
+      transform: translate(-50%, -50%);
+    }
+    .loader {
+      border: 16px solid #f3f3f3;
+      border-radius: 50%;
+      border-top: 16px solid blue;
+      border-right: 16px solid green;
+      border-bottom: 16px solid red;
+      border-left: 16px solid pink;
+      width: 120px;
+      height: 120px;
+      -webkit-animation: spin 2s linear infinite;
+      animation: spin 2s linear infinite;
+    }
+    @-webkit-keyframes spin {
+      0% {
+        -webkit-transform: rotate(0deg);
+      }
+      100% {
+        -webkit-transform: rotate(360deg);
+      }
+    }
+    @keyframes spin {
+      0% {
+        transform: rotate(0deg);
+      }
+      100% {
+        transform: rotate(360deg);
+      }
+    }
   </style>
+
+  <!-- Использую по старинке, запуская flutter не из сервайс вокера: -->
+  <script defer src="main.dart.js" type="application/javascript"></script>
 </head>
 <body>
+  <!-- NOSCRIPT -->
+  <noscript class='noscript-center'>Your browser does not support JavaScript!</noscript>
+
+  <div class="loading">
+    <div class="loader"></div>
+  </div>
+
   <!-- This script installs service_worker.js to provide PWA functionality to
        application. For more information, see:
-       https://developers.google.com/web/fundamentals/primers/service-workers -->
+       https://developers.google.com/web/fundamentals/primers/service-workers
   <script>
     var serviceWorkerVersion = null;
     var scriptLoaded = false;
@@ -107,6 +156,20 @@
       // Service workers not supported. Just drop the <script> tag.
       loadMainDartJs();
     }
+  </script>
+   -->
+
+  <!-- ON LOADED -->
+  <script>
+    //<!--
+    document.addEventListener('DOMContentLoaded', function() {
+      try {
+        console.log('DOM content loaded');
+      } catch (e) {
+        console.error(e);
+      }
+    });
+    //-->
   </script>
 </body>
 </html>
