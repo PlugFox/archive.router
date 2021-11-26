@@ -80,10 +80,11 @@ class AppRouter extends InheritedNotifier {
     NavigateCallback callback, {
     NavigateMode mode = NavigateMode.auto,
   }) {
+    l.i('Обновить конфигурацию роутера');
     final delegate = of(context, listen: false).router;
     switch (mode) {
       case NavigateMode.force:
-        l.i('Перейдем на новую страницу и создадим запись в истории браузера');
+        // Перейдем на новую страницу и создадим запись в истории браузера
         Router.navigate(
           context,
           () => delegate.setNewRoutePath(
@@ -92,7 +93,7 @@ class AppRouter extends InheritedNotifier {
         );
         break;
       case NavigateMode.neglect:
-        l.i('Перейдем на новую страницу без создания новой записи в истории браузера');
+        // Перейдем на новую страницу без создания новой записи в истории браузера
         Router.neglect(
           context,
           () => delegate.setNewRoutePath(
@@ -119,7 +120,7 @@ class AppRouter extends InheritedNotifier {
   /// Перейти на начальную страницу
   static void goHome<T extends Object?>(
     BuildContext context, {
-    NavigateMode mode = NavigateMode.auto,
+    NavigateMode mode = NavigateMode.neglect,
   }) =>
       navigate(
         context,

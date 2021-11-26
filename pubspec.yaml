@@ -6,11 +6,18 @@ publish_to: 'none'
 version: 0.0.1+1
 
 environment:
+  # Stable
+  #sdk: '>=2.14.4'
+  #flutter: '>=2.5.3'
+
+  # Beta
   sdk: ">=2.15.0-116.0.dev"
   flutter: ">=2.6.0-11.0.pre"
 
 dependencies:
   flutter:
+    sdk: flutter
+  flutter_web_plugins:
     sdk: flutter
 
   # Annotation & Code-generation

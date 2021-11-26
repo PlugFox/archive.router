@@ -49,6 +49,8 @@ class PagesBuilder extends StatefulWidget {
       }
     }
     l.v6('PagesBuilder.buildAndReduce(ctx, $configuration) => [${pages.keys.join(',')}]');
+    assert(pages.values.isNotEmpty, 'Список роутов не может быть пустым');
+    assert(pages.values.first is HomePage, 'Первым роутом всегда должен быть домашний роут');
     return pages.values.toList(growable: false);
   }
 

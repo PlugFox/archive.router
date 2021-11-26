@@ -1,8 +1,12 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
 import 'package:l/l.dart';
-import 'package:path/path.dart' as p;
 import 'package:router/src/common/router/configuration.dart';
+import 'package:router/src/common/router/route_information_util.dart';
+
+// /// Последняя известная платформе конфигурация приложения
+// /// используется для проверки необходимости уведомления платформы об изменениях
+// IRouteConfiguration? _currentConfiguration;
 
 class AppRouteInformationParser = RouteInformationParser<IRouteConfiguration>
     with _RestoreRouteInformationMixin, _ParseRouteInformationMixin;
@@ -11,15 +15,22 @@ mixin _RestoreRouteInformationMixin on RouteInformationParser<IRouteConfiguratio
   @override
   RouteInformation? restoreRouteInformation(IRouteConfiguration configuration) {
     try {
-      final location = _reduceLocation(configuration.location);
+      //if (configuration == _currentConfiguration) {
+      //  // Конфигурация не изменилась, не сообщаем платформе об изменениях
+      //  return null;
+      //}
+      final location = RouteInformationUtil.normalize(configuration.location);
+      final state = configuration.state;
       l.v6('RouteInformationParser.restoreRouteInformation($location)');
-      return RouteInformation(
+      final route = RouteInformation(
         location: location,
-        state: configuration.state,
+        state: state,
       );
+      //_currentConfiguration = configuration;
+      return route;
     } on Object catch (error) {
       l.e('Ошибка навигации restoreRouteInformation: $error');
-      return const RouteInformation(location: '/');
+      return const RouteInformation(location: 'home');
     }
   }
 }
@@ -29,7 +40,7 @@ mixin _ParseRouteInformationMixin on RouteInformationParser<IRouteConfiguration>
   Future<IRouteConfiguration> parseRouteInformation(RouteInformation routeInformation) {
     try {
       if (routeInformation is IRouteConfiguration) return SynchronousFuture<IRouteConfiguration>(routeInformation);
-      final location = _reduceLocation(routeInformation.location ?? '/');
+      final location = RouteInformationUtil.normalize(routeInformation.location);
       l.v6('RouteInformationParser.parseRouteInformation($location)');
       var state = routeInformation.state;
       if (state is! Map<String, Map<String, Object?>?>?) {
@@ -42,14 +53,4 @@ mixin _ParseRouteInformationMixin on RouteInformationParser<IRouteConfiguration>
       return SynchronousFuture<IRouteConfiguration>(const NotFoundRouteConfiguration());
     }
   }
-}
-
-String _reduceLocation(String sourceLocation) {
-  final segments = <String>[];
-  sourceLocation.toLowerCase().split('/').map<String>((e) => e.trim()).where((e) => e.isNotEmpty).forEach(
-        (e) => segments
-          ..remove(e)
-          ..add(e),
-      );
-  return p.normalize(p.join('/', segments.join('/')));
 }

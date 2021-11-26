@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:router/src/common/router/back_button_dispatcher.dart';
 import 'package:router/src/common/router/information_parser.dart';
 import 'package:router/src/common/router/information_provider.dart';
 import 'package:router/src/common/router/router_delegate.dart';
@@ -15,8 +16,9 @@ class AppMaterialContext extends StatefulWidget {
 
 class _AppMaterialContextState extends State<AppMaterialContext> {
   final RouteInformationParser<IRouteConfiguration> _routeInformationParser = const AppRouteInformationParser();
-  final PlatformRouteInformationProvider _routeInformationProvider = AppRouteInformationProvider();
+  final RouteInformationProvider _routeInformationProvider = AppRouteInformationProvider();
   final RouterDelegate<IRouteConfiguration> _routerDelegate = AppRouterDelegate();
+  final BackButtonDispatcher _backButtonDispatcher = AppBackButtonDispatcher();
 
   @override
   Widget build(final BuildContext context) => MaterialApp.router(
@@ -25,5 +27,6 @@ class _AppMaterialContextState extends State<AppMaterialContext> {
         routerDelegate: _routerDelegate,
         routeInformationParser: _routeInformationParser,
         routeInformationProvider: _routeInformationProvider,
+        backButtonDispatcher: _backButtonDispatcher,
       );
 }

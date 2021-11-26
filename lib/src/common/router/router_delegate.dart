@@ -50,10 +50,13 @@ class AppRouterDelegate extends RouterDelegate<IRouteConfiguration> with ChangeN
           final padding = size.width < 400 ? 0.0 : 12.0;
           final width = size.width - padding * 2;
           final height = math.min<double>(400, width / 3);
-          final showDebugView = size.height / 2 > height;
-          return Stack(
+          final showDebugView = width > 350 && height > 100 && size.height / 2 > height;
+          return Column(
+            mainAxisSize: MainAxisSize.max,
+            mainAxisAlignment: MainAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
             children: <Widget>[
-              Positioned.fill(
+              Expanded(
                 child: Navigator(
                   transitionDelegate: const DefaultTransitionDelegate<Object?>(),
                   onUnknownRoute: _onUnknownRoute,
@@ -75,12 +78,23 @@ class AppRouterDelegate extends RouterDelegate<IRouteConfiguration> with ChangeN
                 ),
               ),
               if (showDebugView)
-                Positioned(
-                  left: padding,
-                  right: padding,
-                  bottom: padding,
-                  height: height,
-                  child: const RouterDebugView(),
+                SizedBox(
+                  height: height + padding,
+                  child: Padding(
+                    padding: EdgeInsets.only(
+                      top: 0,
+                      left: padding,
+                      right: padding,
+                      bottom: padding,
+                    ),
+                    child: Center(
+                      child: SizedBox(
+                        width: width,
+                        height: height,
+                        child: const RouterDebugView(),
+                      ),
+                    ),
+                  ),
                 ),
             ],
           );
@@ -92,14 +106,36 @@ class AppRouterDelegate extends RouterDelegate<IRouteConfiguration> with ChangeN
   @override
   Future<bool> popRoute() {
     l.v6('RouterDelegate.popRoute()');
-    final navigator = pageObserver.navigator;
-    if (currentConfiguration.isRoot || navigator == null) return SynchronousFuture<bool>(false);
-    return navigator.maybePop();
+    try {
+      final navigator = pageObserver.navigator;
+      if (navigator == null) return SynchronousFuture<bool>(false);
+      return navigator.maybePop().then<bool>(
+        (value) {
+          if (!value) {
+            return setNewRoutePath(
+              const HomeRouteConfiguration(),
+            ).then<bool>(
+              (value) => true,
+              onError: (Object error, StackTrace stackTrace) => false,
+            );
+          }
+          return true;
+        },
+        onError: (Object error, StackTrace stackTrace) => false,
+      );
+    } on Object catch (err) {
+      l.w('RouterDelegate.popRoute: $err');
+      return SynchronousFuture(false);
+    }
   }
 
   @override
   Future<void> setNewRoutePath(IRouteConfiguration configuration) {
-    l.v6('RouterDelegate.setNewRoutePath($configuration)');
+    if (_currentConfiguration == configuration) {
+      // Конфигурация не изменилась
+      return SynchronousFuture<void>(null);
+    }
+    l.v6('RouterDelegate.setNewRoutePath(${_currentConfiguration?.location ?? 'null'} -> ${configuration.location})');
     _currentConfiguration = configuration;
     notifyListeners();
     return SynchronousFuture<void>(null);
