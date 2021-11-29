@@ -7,7 +7,9 @@
   <meta charset="UTF-8">
   <meta content="IE=Edge" http-equiv="X-UA-Compatible">
   <meta name="description" content="Routing">
+  <meta name="keywords" content="dart, flutter, jobs, дарт, флаттер, fox, plague, plugfox, pwa, progressive, web, app, cross-platform, router">
   <meta name="author" content="@plugfox">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 
   <!-- iOS meta tags & icons -->
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -21,13 +23,25 @@
   <title>Демонстрация роутинга</title>
   <link rel="manifest" href="manifest.json">
 
+
   <!-- STYLE -->
   <style>
     html, body {
-      margin: 0;
-      padding: 0;
+      position: fixed;
+      top: 0;
+      bottom: 0;
+      left: 0;
+      right: 0;
       background-color: #FFF;
       overflow: hidden;
+      inset: 0px;
+      margin: 0;
+      padding: 0;
+      user-select: none;
+      touch-action: none;
+      font: 14px sans-serif;
+      color: black;
+      display: block;
     }
     .noscript-center {
       position: absolute;
@@ -56,10 +70,10 @@
       border-right: 16px solid green;
       border-bottom: 16px solid red;
       border-left: 16px solid pink;
-      width: 120px;
-      height: 120px;
-      -webkit-animation: spin 2s linear infinite;
+      width: 75px;
+      height: 75px;
       animation: spin 2s linear infinite;
+      -webkit-animation: spin 2s linear infinite;
     }
     @-webkit-keyframes spin {
       0% {

@@ -13,7 +13,8 @@ void run() =>
       () => runZonedGuarded<void>(
         () async {
           // https://docs.flutter.dev/development/ui/navigation/url-strategies
-          setUrlStrategy(PathUrlStrategy());
+          //setUrlStrategy(PathUrlStrategy());
+          setUrlStrategy(const HashUrlStrategy());
 
           // Запустить приложение
           App.run();
