@@ -25,16 +25,16 @@ services:
     networks:
       - traefik-public
     deploy:
-      replicas: 1
+      replicas: 2
       placement:
         constraints:
           - node.role == worker
       resources:
         reservations:
-          cpus: '0.10'
-          memory: 64M
+          cpus: '0.15'
+          memory: 128M
         limits:
-          cpus: '0.25'
+          cpus: '0.30'
           memory: 256M
       labels:
         ################################################################

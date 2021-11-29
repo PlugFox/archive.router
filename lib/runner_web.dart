@@ -1,6 +1,8 @@
 // ignore_for_file: unnecessary_lambdas
 import 'dart:async';
+import 'dart:html' as html;
 
+import 'package:flutter_web_plugins/flutter_web_plugins.dart';
 import 'package:l/l.dart';
 import 'package:router/src/app.dart';
 
@@ -10,8 +12,23 @@ void run() =>
     l.capture<void>(
       () => runZonedGuarded<void>(
         () async {
+          // https://docs.flutter.dev/development/ui/navigation/url-strategies
+          //setUrlStrategy(PathUrlStrategy());
+          setUrlStrategy(const HashUrlStrategy());
+
           // Запустить приложение
           App.run();
+
+          // Удалить прогресс индикатор после запуска приложения
+          Future<void>.delayed(
+            const Duration(seconds: 1),
+            () {
+              html.document
+                  .getElementsByClassName('loading')
+                  .toList(growable: false)
+                  .forEach((element) => element.remove());
+            },
+          );
         },
         (final error, final stackTrace) {
           l.e(

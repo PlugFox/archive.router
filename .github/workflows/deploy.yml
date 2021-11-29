@@ -22,15 +22,13 @@ jobs:
         run: |
           echo "Registering SSH keys..."
           mkdir -p "$HOME/.ssh"
-          printf '%s' "${{ secrets.DOCKER_SWARM_SSH_PRIVATE_KEY }}" >> "${HOME}/.ssh/docker"
+          printf '%s' "${{secrets.DOCKER_SWARM_SSH_PRIVATE_KEY}}" >> "${HOME}/.ssh/docker"
           chmod 600 "$HOME/.ssh/docker" && eval $(ssh-agent) && ssh-add "${HOME}/.ssh/docker"
 
           echo "Add public key to known hosts..."
-          printf '%s %s\n' "$REMOTE_HOST" "${{ secrets.DOCKER_SWARM_SSH_PUBLIC_KEY }}" >> "${HOME}/.ssh/known_hosts"
+          printf '%s %s\n' "{{secrets.REMOTE_HOST}}" "${{secrets.DOCKER_SWARM_SSH_PUBLIC_KEY}}" >> "${HOME}/.ssh/known_hosts"
 
           echo "Deploying..."
-          docker --log-level debug --host ssh://${REMOTE_USER}@${REMOTE_HOST} stack deploy \
-            --compose-file ./example-router.stack.yml --orchestrator swarm --prune --with-registry-auth \
-              example-router
+          docker --log-level debug --host "ssh://pfx@api.plugfox.dev" stack deploy --compose-file ./example-router.stack.yml --orchestrator swarm --prune --with-registry-auth example-router
 
           rm -rf "$HOME/.ssh"

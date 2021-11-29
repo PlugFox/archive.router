@@ -26,19 +26,22 @@ codegen: get
 outdated:
 	@flutter pub outdated
 
+serve: codegen
+	@echo "Serve as web app"
+	flutter run -d web-server
+
 build-web:
 	@echo "Build release docker image with flutter web and nginx"
 	docker-compose -f ./example-router.compose.yml build --no-cache --force-rm --compress --parallel
 
-push:
+push: build-web
 	@echo "Push docker image with flutter web and nginx"
 	docker-compose -f ./example-router.compose.yml push
 
 run:
 	@echo "Run release docker image with flutter web and nginx"
-	docker run -d -p 9090:9090 --name example-router registry.plugfox.dev/example-router
+	docker run -d -p 80:80 --name example-router registry.plugfox.dev/example-router
 
 deploy:
 	@echo "Deploy release into docker swarm"
-	docker --log-level debug --host "ssh://pfx@example.plugfox.dev" stack deploy \
-		--compose-file ./example-router.stack.yml --orchestrator swarm --prune --with-registry-auth example-router
+	docker --log-level debug --host "ssh://pfx@api.plugfox.dev" stack deploy --compose-file ./example-router.stack.yml --orchestrator swarm --prune --with-registry-auth example-router
