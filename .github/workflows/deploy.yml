@@ -29,6 +29,7 @@ jobs:
           printf '%s %s\n' "{{secrets.REMOTE_HOST}}" "${{secrets.DOCKER_SWARM_SSH_PUBLIC_KEY}}" >> "${HOME}/.ssh/known_hosts"
 
           echo "Deploying..."
+
           docker --log-level debug --host "ssh://pfx@api.plugfox.dev" stack deploy --compose-file ./example-router.stack.yml --orchestrator swarm --prune --with-registry-auth example-router
 
           rm -rf "$HOME/.ssh"

@@ -45,3 +45,4 @@ run:
 deploy:
 	@echo "Deploy release into docker swarm"
 	docker --log-level debug --host "ssh://pfx@api.plugfox.dev" stack deploy --compose-file ./example-router.stack.yml --orchestrator swarm --prune --with-registry-auth example-router
+

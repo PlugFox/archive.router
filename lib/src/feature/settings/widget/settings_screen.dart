@@ -1,3 +1,5 @@
+import 'dart:math' as math;
+
 import 'package:flutter/material.dart';
 import 'package:router/src/common/router/router.dart';
 
@@ -16,20 +18,26 @@ class SettingsScreen extends StatelessWidget {
           title: const Text('Настройки'),
         ),
         body: SafeArea(
-          child: Center(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: const <Widget>[
-                SizedBox(
-                  height: 75,
-                  child: Text(
-                    'Настройки',
-                    overflow: TextOverflow.ellipsis,
+          child: Padding(
+            padding: EdgeInsets.symmetric(
+              horizontal: math.max((MediaQuery.of(context).size.width - 550) / 2, 8),
+              vertical: 14,
+            ),
+            child: Center(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: const <Widget>[
+                  SizedBox(
+                    height: 75,
+                    child: Text(
+                      'Настройки',
+                      overflow: TextOverflow.ellipsis,
+                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
           ),
         ),

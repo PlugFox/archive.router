@@ -1,6 +1,8 @@
+import 'package:collection/collection.dart';
 import 'package:flutter/widgets.dart';
 import 'package:l/l.dart';
 import 'package:router/src/common/router/pages.dart';
+import 'package:router/src/common/router/route_information_util.dart';
 
 /// Конфигурация состояния приложения и всех его маршрутов
 @immutable
@@ -39,7 +41,7 @@ abstract class RouteConfigurationBase implements IRouteConfiguration {
   @override
   IRouteConfiguration? get previous {
     IRouteConfiguration? getPrevious() {
-      if (location == '/' || location.isEmpty) return null;
+      if (location == '/' || location == 'home' || location.isEmpty) return null;
       try {
         final uri = Uri.parse(location);
         final pathSegments = uri.pathSegments;
@@ -69,7 +71,7 @@ abstract class RouteConfigurationBase implements IRouteConfiguration {
   IRouteConfiguration add(AppPage page) {
     if (page.location.isEmpty) return this;
     final arguments = page.arguments;
-    final newLocation = location.endsWith('/') ? '$location${page.location}' : '$location/${page.location}';
+    final newLocation = RouteInformationUtil.normalize('$location/${page.location}');
     if (arguments is Map<String, Object?> || state != null) {
       return DynamicRouteConfiguration(
         newLocation,
@@ -84,6 +86,19 @@ abstract class RouteConfigurationBase implements IRouteConfiguration {
 
   @override
   String toString() => 'RouteConfiguration($location)';
+
+  @override
+  int get hashCode => Object.hash(location, state);
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is IRouteConfiguration &&
+          location == other.location &&
+          const DeepCollectionEquality.unordered().equals(
+            state,
+            other.state,
+          ));
 }
 
 /// Презет конфигурации домашнего, корневого роута
@@ -97,7 +112,7 @@ class HomeRouteConfiguration extends RouteConfigurationBase {
   IRouteConfiguration? get previous => null;
 
   @override
-  String get location => '/';
+  String get location => 'home';
 
   @override
   Map<String, Object?>? get state => <String, Object?>{};
@@ -114,7 +129,7 @@ class NotFoundRouteConfiguration extends RouteConfigurationBase {
   IRouteConfiguration? get previous => const HomeRouteConfiguration();
 
   @override
-  String get location => '/404';
+  String get location => 'home/404';
 
   @override
   Map<String, Object?>? get state => <String, Object?>{};

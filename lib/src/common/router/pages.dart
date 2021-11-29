@@ -1,6 +1,8 @@
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:router/src/common/router/not_found_screen.dart';
+import 'package:router/src/feature/accent/widget/accent_screen.dart';
+import 'package:router/src/feature/color/widget/color_screen.dart';
 import 'package:router/src/feature/home/widget/home_screen.dart';
 import 'package:router/src/feature/settings/widget/settings_screen.dart';
 
@@ -35,15 +37,23 @@ abstract class AppPage<T extends Object?> extends Page<T> {
     // дополнительные, позиционные, параметры, например id
     final segments = location.toLowerCase().split('-');
     final name = segments.firstOrNull?.trim();
+    final args = segments.length > 1 ? segments.sublist(1) : <String>[];
     assert(
       name != null && name.isNotEmpty && name.codeUnits.every((e) => e > 96 && e < 123),
       'Имя должно состоять только из символов латинского алфавита в нижнем регистре: a..z',
     );
+    // Тут объявляем все роуты приложения
     switch (name) {
+      case '':
       case '/':
+      case 'home':
         return HomePage();
       case 'settings':
         return SettingsPage();
+      case 'color':
+        return ColorPage.fromArgs(args);
+      case 'accent':
+        return AccentPage.fromArgs(args);
       case '404':
       default:
         return NotFoundPage();
@@ -75,7 +85,7 @@ abstract class AppPage<T extends Object?> extends Page<T> {
 class HomePage extends AppPage<void> {
   HomePage()
       : super(
-          location: '/',
+          location: 'home',
         );
 
   @override
@@ -102,4 +112,98 @@ class SettingsPage extends AppPage<void> {
 
   @override
   Widget build(BuildContext context) => const SettingsScreen();
+}
+
+/// Выбранный цвет
+class ColorPage extends AppPage<void> {
+  ColorPage._(
+    this.colorName,
+    this.color,
+  ) : super(
+          location: 'color-$colorName',
+        );
+
+  factory ColorPage.red() => ColorPage._('red', Colors.red);
+
+  factory ColorPage.green() => ColorPage._('green', Colors.green);
+
+  factory ColorPage.blue() => ColorPage._('blue', Colors.blue);
+
+  static AppPage<void> fromArgs(final List<String> args) {
+    try {
+      final title = args[0];
+      switch (title) {
+        case 'red':
+          return ColorPage.red();
+        case 'green':
+          return ColorPage.green();
+        case 'blue':
+          return ColorPage.blue();
+        default:
+          return NotFoundPage();
+      }
+    } on Object {
+      return NotFoundPage();
+    }
+  }
+
+  final String colorName;
+  final MaterialColor color;
+
+  @override
+  Widget build(BuildContext context) => ColorScreen(colorName: colorName, color: color);
+}
+
+/// Выбранный оттенок
+class AccentPage extends AppPage<void> {
+  AccentPage._(
+    this.colorName,
+    this.accent,
+    this.color,
+  ) : super(
+          location: 'accent-$colorName-$accent',
+        );
+
+  factory AccentPage({
+    required final String colorName,
+    required final int accent,
+    required final MaterialColor color,
+  }) =>
+      AccentPage._(colorName, accent, color[accent]!);
+
+  factory AccentPage.red(int accent) => AccentPage._('red', accent, Colors.red[accent]!);
+
+  factory AccentPage.green(int accent) => AccentPage._('green', accent, Colors.green[accent]!);
+
+  factory AccentPage.blue(int accent) => AccentPage._('blue', accent, Colors.blue[accent]!);
+
+  static AppPage<void> fromArgs(final List<String> args) {
+    try {
+      final title = args[0];
+      final accent = int.parse(args[1]);
+      switch (title) {
+        case 'red':
+          return AccentPage.red(accent);
+        case 'green':
+          return AccentPage.green(accent);
+        case 'blue':
+          return AccentPage.blue(accent);
+        default:
+          return NotFoundPage();
+      }
+    } on Object {
+      return NotFoundPage();
+    }
+  }
+
+  final String colorName;
+  final int accent;
+  final Color color;
+
+  @override
+  Widget build(BuildContext context) => AccentScreen(
+        colorName: colorName,
+        accent: accent,
+        color: color,
+      );
 }
