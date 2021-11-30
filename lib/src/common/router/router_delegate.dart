@@ -8,7 +8,8 @@ import 'package:router/src/common/router/navigator_observer.dart';
 import 'package:router/src/common/router/not_found_screen.dart';
 import 'package:router/src/common/router/pages_builder.dart';
 import 'package:router/src/common/router/router.dart';
-import 'package:router/src/common/widget/router_debug_view.dart';
+import 'package:router/src/feature/router_debug_view/widget/router_debug_view.dart';
+import 'package:router/src/feature/router_debug_view/widget/router_debug_view_controller.dart';
 
 export 'package:router/src/common/router/configuration.dart';
 export 'package:router/src/common/router/navigator_observer.dart';
@@ -40,65 +41,76 @@ class AppRouterDelegate extends RouterDelegate<IRouteConfiguration> with ChangeN
   @override
   Widget build(BuildContext context) {
     final configuration = currentConfiguration;
-    return AppRouter(
-      routerDelegate: this,
-      child: PagesBuilder(
-        configuration: configuration,
-        builder: (context, pages, child) {
-          // Вычисляем размеры и доступность отладочной вьюхи
-          final size = MediaQuery.of(context).size;
-          final padding = size.width < 400 ? 0.0 : 12.0;
-          final width = size.width - padding * 2;
-          final height = math.min<double>(400, width / 3);
-          final showDebugView = width > 350 && height > 100 && size.height / 2 > height;
-          return Column(
-            mainAxisSize: MainAxisSize.max,
-            mainAxisAlignment: MainAxisAlignment.start,
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: <Widget>[
-              Expanded(
-                child: Navigator(
-                  transitionDelegate: const DefaultTransitionDelegate<Object?>(),
-                  onUnknownRoute: _onUnknownRoute,
-                  reportsRouteUpdateToEngine: true,
-                  observers: <NavigatorObserver>[
-                    pageObserver,
-                    modalObserver,
-                    //if (analytics != null) FirebaseAnalyticsObserver(analytics: analytics),
-                  ],
-                  pages: pages,
-                  onPopPage: (Route<Object?> route, Object? result) {
-                    l.v6('RouterDelegate.onPopPage(${route.settings.name}, ${result?.toString() ?? '<null>'})');
-                    if (!route.didPop(result)) {
-                      return false;
-                    }
-                    setNewRoutePath(configuration.previous ?? const NotFoundRouteConfiguration());
-                    return true;
-                  },
+    RouterDebugViewController.instance.build();
+    return ColoredBox(
+      color: Theme.of(context).scaffoldBackgroundColor,
+      child: AppRouter(
+        routerDelegate: this,
+        child: PagesBuilder(
+          configuration: configuration,
+          builder: (context, pages, child) {
+            // Вычисляем размеры и доступность отладочной вьюхи
+            final size = MediaQuery.of(context).size;
+            final padding = size.width < 400 ? 0.0 : 12.0;
+            final width = size.width - padding * 2;
+            final height = math.min<double>(400, width / 3);
+            final showDebugView = width > 350 && height > 100 && size.height / 2 > height;
+            return Column(
+              mainAxisSize: MainAxisSize.max,
+              mainAxisAlignment: MainAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: <Widget>[
+                Expanded(
+                  key: const ValueKey<String>('NavigatorPane'),
+                  child: Navigator(
+                    transitionDelegate: const DefaultTransitionDelegate<Object?>(),
+                    onUnknownRoute: _onUnknownRoute,
+                    reportsRouteUpdateToEngine: true,
+                    observers: <NavigatorObserver>[
+                      pageObserver,
+                      modalObserver,
+                      //if (analytics != null) FirebaseAnalyticsObserver(analytics: analytics),
+                    ],
+                    pages: pages,
+                    onPopPage: (Route<Object?> route, Object? result) {
+                      l.v6('Navigator.onPopPage(${route.settings.name}, ${result?.toString() ?? '<null>'})');
+                      RouterDebugViewController.instance.popPage(
+                        '${route.settings.name}, ${result?.toString() ?? '<null>'}',
+                      );
+                      if (!route.didPop(result)) {
+                        return false;
+                      }
+                      setNewRoutePath(configuration.previous ?? const NotFoundRouteConfiguration());
+                      return true;
+                    },
+                  ),
                 ),
-              ),
-              if (showDebugView)
-                SizedBox(
-                  height: height + padding,
-                  child: Padding(
-                    padding: EdgeInsets.only(
-                      top: 0,
-                      left: padding,
-                      right: padding,
-                      bottom: padding,
-                    ),
-                    child: Center(
-                      child: SizedBox(
-                        width: width,
-                        height: height,
-                        child: const RouterDebugView(),
+                if (showDebugView)
+                  SizedBox(
+                    key: const ValueKey<String>('DebugView'),
+                    height: height + padding,
+                    child: RepaintBoundary(
+                      child: Padding(
+                        padding: EdgeInsets.only(
+                          top: 0,
+                          left: padding,
+                          right: padding,
+                          bottom: padding,
+                        ),
+                        child: Center(
+                          child: SizedBox(
+                            width: width,
+                            height: height,
+                            child: const RouterDebugView(),
+                          ),
+                        ),
                       ),
                     ),
                   ),
-                ),
-            ],
-          );
-        },
+              ],
+            );
+          },
+        ),
       ),
     );
   }
@@ -106,6 +118,7 @@ class AppRouterDelegate extends RouterDelegate<IRouteConfiguration> with ChangeN
   @override
   Future<bool> popRoute() {
     l.v6('RouterDelegate.popRoute()');
+    RouterDebugViewController.instance.popRoute();
     try {
       final navigator = pageObserver.navigator;
       if (navigator == null) return SynchronousFuture<bool>(false);
@@ -131,11 +144,12 @@ class AppRouterDelegate extends RouterDelegate<IRouteConfiguration> with ChangeN
 
   @override
   Future<void> setNewRoutePath(IRouteConfiguration configuration) {
+    l.v6('RouterDelegate.setNewRoutePath(${configuration.location})');
+    RouterDebugViewController.instance.setNewRoutePath(configuration.location);
     if (_currentConfiguration == configuration) {
       // Конфигурация не изменилась
       return SynchronousFuture<void>(null);
     }
-    l.v6('RouterDelegate.setNewRoutePath(${_currentConfiguration?.location ?? 'null'} -> ${configuration.location})');
     _currentConfiguration = configuration;
     notifyListeners();
     return SynchronousFuture<void>(null);
@@ -143,13 +157,15 @@ class AppRouterDelegate extends RouterDelegate<IRouteConfiguration> with ChangeN
 
   @override
   Future<void> setRestoredRoutePath(IRouteConfiguration configuration) {
-    l.v6('RouterDelegate.setRestoredRoutePath($configuration)');
+    l.v6('RouterDelegate.setRestoredRoutePath(${configuration.location})');
+    RouterDebugViewController.instance.setRestoredRoutePath(configuration.location);
     return super.setRestoredRoutePath(configuration);
   }
 
   @override
   Future<void> setInitialRoutePath(IRouteConfiguration configuration) {
-    l.v6('RouterDelegate.setInitialRoutePath($configuration)');
+    l.v6('RouterDelegate.setInitialRoutePath(${configuration.location})');
+    RouterDebugViewController.instance.setInitialRoutePath(configuration.location);
     return super.setInitialRoutePath(configuration);
   }
 

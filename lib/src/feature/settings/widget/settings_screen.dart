@@ -2,6 +2,7 @@ import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 import 'package:router/src/common/router/router.dart';
+import 'package:router/src/feature/settings/widget/inherited_theme_notifier.dart';
 
 @immutable
 class SettingsScreen extends StatelessWidget {
@@ -15,7 +16,8 @@ class SettingsScreen extends StatelessWidget {
           leading: BackButton(
             onPressed: () => pop(context),
           ),
-          title: const Text('Настройки'),
+          title: const Text('Settings'),
+          centerTitle: true,
         ),
         body: SafeArea(
           child: Padding(
@@ -24,16 +26,21 @@ class SettingsScreen extends StatelessWidget {
               vertical: 14,
             ),
             child: Center(
-              child: Column(
+              child: Row(
                 mainAxisSize: MainAxisSize.min,
                 mainAxisAlignment: MainAxisAlignment.center,
                 crossAxisAlignment: CrossAxisAlignment.center,
-                children: const <Widget>[
-                  SizedBox(
-                    height: 75,
-                    child: Text(
-                      'Настройки',
-                      overflow: TextOverflow.ellipsis,
+                children: <Widget>[
+                  Text(
+                    'Switch theme',
+                    overflow: TextOverflow.ellipsis,
+                    style: Theme.of(context).textTheme.headline6!.copyWith(height: 1),
+                  ),
+                  const SizedBox(width: 8),
+                  Builder(
+                    builder: (context) => Switch(
+                      value: InheritedThemeNotifier.maybeOf(context)?.isLight ?? true,
+                      onChanged: (value) => InheritedThemeNotifier.maybeOf(context)?.switchTheme(),
                     ),
                   ),
                 ],

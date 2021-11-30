@@ -3,6 +3,7 @@ import 'package:flutter/widgets.dart';
 import 'package:l/l.dart';
 import 'package:router/src/common/router/configuration.dart';
 import 'package:router/src/common/router/route_information_util.dart';
+import 'package:router/src/feature/router_debug_view/widget/router_debug_view_controller.dart';
 
 // /// Последняя известная платформе конфигурация приложения
 // /// используется для проверки необходимости уведомления платформы об изменениях
@@ -22,6 +23,7 @@ mixin _RestoreRouteInformationMixin on RouteInformationParser<IRouteConfiguratio
       final location = RouteInformationUtil.normalize(configuration.location);
       final state = configuration.state;
       l.v6('RouteInformationParser.restoreRouteInformation($location)');
+      RouterDebugViewController.instance.restoreRouteInformation(location);
       final route = RouteInformation(
         location: location,
         state: state,
@@ -42,6 +44,7 @@ mixin _ParseRouteInformationMixin on RouteInformationParser<IRouteConfiguration>
       if (routeInformation is IRouteConfiguration) return SynchronousFuture<IRouteConfiguration>(routeInformation);
       final location = RouteInformationUtil.normalize(routeInformation.location);
       l.v6('RouteInformationParser.parseRouteInformation($location)');
+      RouterDebugViewController.instance.parseRouteInformation(location);
       var state = routeInformation.state;
       if (state is! Map<String, Map<String, Object?>?>?) {
         state = null;
