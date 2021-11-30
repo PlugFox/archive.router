@@ -18,7 +18,7 @@ class HomeScreen extends StatelessWidget {
               icon: const Icon(Icons.settings),
               onPressed: () => AppRouter.navigate(context, (configuration) => configuration.add(SettingsPage())),
             ),
-            const SizedBox(width: 24),
+            const SizedBox(width: 12),
           ],
         ),
         body: SafeArea(

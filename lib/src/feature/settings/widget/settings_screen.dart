@@ -26,7 +26,25 @@ class SettingsScreen extends StatelessWidget {
               vertical: 14,
             ),
             child: Center(
-              child: Row(
+              child: IconButton(
+                iconSize: 64,
+                onPressed: () => InheritedThemeNotifier.maybeOf(context, listen: false)?.switchTheme(),
+                icon: Tooltip(
+                  message: 'Change theme',
+                  child: Builder(
+                    builder: (context) => (InheritedThemeNotifier.maybeOf(context)?.isLight ?? true)
+                        ? const Icon(
+                            Icons.dark_mode,
+                            color: Colors.black87,
+                          )
+                        : const Icon(
+                            Icons.light_mode,
+                            color: Colors.orange,
+                          ),
+                  ),
+                ),
+              ),
+              /*Row(
                 mainAxisSize: MainAxisSize.min,
                 mainAxisAlignment: MainAxisAlignment.center,
                 crossAxisAlignment: CrossAxisAlignment.center,
@@ -45,6 +63,7 @@ class SettingsScreen extends StatelessWidget {
                   ),
                 ],
               ),
+              */
             ),
           ),
         ),
