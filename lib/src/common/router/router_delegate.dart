@@ -3,6 +3,7 @@ import 'dart:math' as math;
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:l/l.dart';
+import 'package:platform_info/platform_info.dart';
 import 'package:router/src/common/router/configuration.dart';
 import 'package:router/src/common/router/navigator_observer.dart';
 import 'package:router/src/common/router/not_found_screen.dart';
@@ -10,6 +11,7 @@ import 'package:router/src/common/router/pages_builder.dart';
 import 'package:router/src/common/router/router.dart';
 import 'package:router/src/feature/router_debug_view/widget/router_debug_view.dart';
 import 'package:router/src/feature/router_debug_view/widget/router_debug_view_controller.dart';
+import 'package:router/src/feature/router_debug_view/widget/router_debug_view_switch.dart';
 
 export 'package:router/src/common/router/configuration.dart';
 export 'package:router/src/common/router/navigator_observer.dart';
@@ -85,7 +87,7 @@ class AppRouterDelegate extends RouterDelegate<IRouteConfiguration> with ChangeN
                     },
                   ),
                 ),
-                if (showDebugView)
+                if (showDebugView && RouterDebugViewSwitch.of(context))
                   SizedBox(
                     key: const ValueKey<String>('DebugView'),
                     height: height + padding,
@@ -125,6 +127,16 @@ class AppRouterDelegate extends RouterDelegate<IRouteConfiguration> with ChangeN
       return navigator.maybePop().then<bool>(
         (value) {
           if (!value) {
+            if (platform.isIO) {
+              return false;
+              /*
+              return SystemNavigator.pop().then<bool>(
+                (value) => true,
+                onError: (Object error, StackTrace stackTrace) => false,
+              );
+              */
+            }
+            // В вебе, вместо перехода на главный экран, можно закрывать текущую активную вкладку
             return setNewRoutePath(
               const HomeRouteConfiguration(),
             ).then<bool>(

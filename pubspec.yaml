@@ -24,7 +24,7 @@ dependencies:
   meta: ^1.7.0
 
   # Storage and SQL
-  shared_preferences: ^2.0.5
+  shared_preferences: ^2.0.9
 
   # Utility & Helpers
   path: ^1.8.0
