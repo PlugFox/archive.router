@@ -1,6 +1,7 @@
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:router/src/common/router/not_found_screen.dart';
+import 'package:router/src/feature/about/widget/about_screen.dart';
 import 'package:router/src/feature/accent/widget/accent_screen.dart';
 import 'package:router/src/feature/color/widget/color_screen.dart';
 import 'package:router/src/feature/home/widget/home_screen.dart';
@@ -50,6 +51,8 @@ abstract class AppPage<T extends Object?> extends Page<T> {
         return HomePage();
       case 'settings':
         return SettingsPage();
+      case 'about':
+        return AboutPage();
       case 'color':
         return ColorPage.fromArgs(args);
       case 'accent':
@@ -112,6 +115,17 @@ class SettingsPage extends AppPage<void> {
 
   @override
   Widget build(BuildContext context) => const SettingsScreen();
+}
+
+/// Страница описания
+class AboutPage extends AppPage<void> {
+  AboutPage()
+      : super(
+          location: 'about',
+        );
+
+  @override
+  Widget build(BuildContext context) => const AboutScreen();
 }
 
 /// Выбранный цвет

@@ -15,6 +15,11 @@ class HomeScreen extends StatelessWidget {
           centerTitle: true,
           actions: <Widget>[
             IconButton(
+              icon: const Icon(Icons.info),
+              onPressed: () => AppRouter.navigate(context, (configuration) => configuration.add(AboutPage())),
+            ),
+            const SizedBox(width: 8),
+            IconButton(
               icon: const Icon(Icons.settings),
               onPressed: () => AppRouter.navigate(context, (configuration) => configuration.add(SettingsPage())),
             ),

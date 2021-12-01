@@ -30,7 +30,7 @@ class SettingsScreen extends StatelessWidget {
                 iconSize: 64,
                 onPressed: () => InheritedThemeNotifier.maybeOf(context, listen: false)?.switchTheme(),
                 icon: Tooltip(
-                  message: 'Change theme',
+                  message: 'Switch theme',
                   child: Builder(
                     builder: (context) => (InheritedThemeNotifier.maybeOf(context)?.isLight ?? true)
                         ? const Icon(
@@ -44,26 +44,6 @@ class SettingsScreen extends StatelessWidget {
                   ),
                 ),
               ),
-              /*Row(
-                mainAxisSize: MainAxisSize.min,
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: <Widget>[
-                  Text(
-                    'Switch theme',
-                    overflow: TextOverflow.ellipsis,
-                    style: Theme.of(context).textTheme.headline6!.copyWith(height: 1),
-                  ),
-                  const SizedBox(width: 8),
-                  Builder(
-                    builder: (context) => Switch(
-                      value: InheritedThemeNotifier.maybeOf(context)?.isLight ?? true,
-                      onChanged: (value) => InheritedThemeNotifier.maybeOf(context)?.switchTheme(),
-                    ),
-                  ),
-                ],
-              ),
-              */
             ),
           ),
         ),
