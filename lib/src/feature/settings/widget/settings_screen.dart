@@ -2,6 +2,7 @@ import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 import 'package:router/src/common/router/router.dart';
+import 'package:router/src/feature/settings/widget/inherited_theme_notifier.dart';
 
 @immutable
 class SettingsScreen extends StatelessWidget {
@@ -15,7 +16,8 @@ class SettingsScreen extends StatelessWidget {
           leading: BackButton(
             onPressed: () => pop(context),
           ),
-          title: const Text('Настройки'),
+          title: const Text('Settings'),
+          centerTitle: true,
         ),
         body: SafeArea(
           child: Padding(
@@ -24,19 +26,23 @@ class SettingsScreen extends StatelessWidget {
               vertical: 14,
             ),
             child: Center(
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: const <Widget>[
-                  SizedBox(
-                    height: 75,
-                    child: Text(
-                      'Настройки',
-                      overflow: TextOverflow.ellipsis,
-                    ),
+              child: IconButton(
+                iconSize: 64,
+                onPressed: () => InheritedThemeNotifier.maybeOf(context, listen: false)?.switchTheme(),
+                icon: Tooltip(
+                  message: 'Switch theme',
+                  child: Builder(
+                    builder: (context) => (InheritedThemeNotifier.maybeOf(context)?.isLight ?? true)
+                        ? const Icon(
+                            Icons.dark_mode,
+                            color: Colors.black87,
+                          )
+                        : const Icon(
+                            Icons.light_mode,
+                            color: Colors.orange,
+                          ),
                   ),
-                ],
+                ),
               ),
             ),
           ),

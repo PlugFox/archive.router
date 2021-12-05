@@ -23,6 +23,7 @@ class AccentScreen extends StatelessWidget {
             onPressed: () => AppRouter.pop(context),
           ),
           title: Text('${colorName.toUpperCase()}[$accent]'),
+          centerTitle: true,
         ),
         body: SafeArea(
           child: Center(
@@ -35,10 +36,14 @@ class AccentScreen extends StatelessWidget {
               ),
               children: <Widget>[
                 SizedBox(
-                  height: 25,
-                  child: Text(
-                    'Цвет: $colorName[$accent]',
-                    overflow: TextOverflow.ellipsis,
+                  height: 50,
+                  child: Center(
+                    child: Text(
+                      'Selected accent: $colorName[$accent]',
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: Theme.of(context).textTheme.headline6,
+                    ),
                   ),
                 ),
                 const Padding(
@@ -67,15 +72,23 @@ class _ColorBox extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final color = context.findAncestorWidgetOfExactType<AccentScreen>()!.color;
-    return Padding(
-      padding: const EdgeInsets.all(12),
-      child: ColoredBox(
-        color: color,
-        child: Center(
-          child: Text(
-            color.toString(),
-            style: const TextStyle(
-              backgroundColor: Colors.white,
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(12),
+        child: SizedBox(
+          width: 200,
+          child: SizedBox.expand(
+            child: DecoratedBox(
+              decoration: BoxDecoration(
+                color: color,
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(
+                  width: 5,
+                  color: color.withOpacity(0.5),
+                  style: BorderStyle.solid,
+                ),
+                boxShadow: kElevationToShadow[6],
+              ),
             ),
           ),
         ),

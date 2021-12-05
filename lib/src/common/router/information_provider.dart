@@ -5,6 +5,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:l/l.dart';
 import 'package:router/src/common/router/route_information_util.dart';
+import 'package:router/src/feature/router_debug_view/widget/router_debug_view_controller.dart';
 // ignore_for_file: prefer_mixin
 
 /// The route information provider that propagates the platform route information changes.
@@ -40,9 +41,9 @@ class AppRouteInformationProvider extends RouteInformationProvider with WidgetsB
     required RouteInformationReportingType type,
   }) {
     l.v6(
-      'RouteInformationProvider.routerReportsNewRouteInformation(${routeInformation.location}, '
-      'type: ${type.name})',
+      'RouteInformationProvider.routerReportsNewRouteInformation(${routeInformation.location}',
     );
+    RouterDebugViewController.instance.routerReportsNewRouteInformation('${routeInformation.location}');
     final replace = type == RouteInformationReportingType.neglect ||
         (type == RouteInformationReportingType.none && _valueInEngine.location == routeInformation.location);
     //SystemNavigator.selectMultiEntryHistory();
@@ -99,6 +100,7 @@ class AppRouteInformationProvider extends RouteInformationProvider with WidgetsB
   Future<bool> didPushRouteInformation(RouteInformation routeInformation) async {
     /// Платформа присылает сообщения которые надо бы обрезать
     l.v6('RouteInformationProvider.didPushRouteInformation(${routeInformation.location})');
+    RouterDebugViewController.instance.didPushRouteInformation('${routeInformation.location}');
 
     assert(hasListeners, 'RouteInformationProvider должен обладать подписчиками');
 
@@ -120,6 +122,7 @@ class AppRouteInformationProvider extends RouteInformationProvider with WidgetsB
   @override
   Future<bool> didPushRoute(String route) async {
     l.v6('RouteInformationProvider.didPushRoute($route)');
+    RouterDebugViewController.instance.didPushRoute(route);
     assert(hasListeners, 'RouteInformationProvider должен обладать подписчиками');
     _platformReportsNewRouteInformation(RouteInformation(location: route));
     return true;
@@ -128,6 +131,7 @@ class AppRouteInformationProvider extends RouteInformationProvider with WidgetsB
   @override
   Future<bool> didPopRoute() {
     l.v6('RouteInformationProvider.didPopRoute()');
+    RouterDebugViewController.instance.didPopRoute();
     return super.didPopRoute();
   }
 }

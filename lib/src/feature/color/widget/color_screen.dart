@@ -1,4 +1,5 @@
 import 'dart:math' as math;
+import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:router/src/common/router/pages.dart';
@@ -22,6 +23,7 @@ class ColorScreen extends StatelessWidget {
             onPressed: () => AppRouter.pop(context),
           ),
           title: Text(colorName.toUpperCase()),
+          centerTitle: true,
         ),
         body: SafeArea(
           child: Center(
@@ -34,32 +36,33 @@ class ColorScreen extends StatelessWidget {
               ),
               children: <Widget>[
                 SizedBox(
-                  height: 25,
-                  child: Text(
-                    'Цвет: $colorName',
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                ),
-                const SizedBox(
-                  width: 100,
-                  height: 100,
-                  child: _ColorBox(),
-                ),
-                const SizedBox(height: 50),
-                const SizedBox(
-                  height: 25,
+                  height: 50,
                   child: Center(
                     child: Text(
-                      'Выберите оттенок',
+                      'Selected color: $colorName',
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
-                      style: TextStyle(
-                        fontSize: 24,
-                      ),
+                      style: Theme.of(context).textTheme.headline6!.copyWith(height: 1),
                     ),
                   ),
                 ),
-                const _AccentWrapList(),
+                const SizedBox(
+                  height: 100,
+                  child: _ColorBox(),
+                ),
+                const SizedBox(height: 25),
+                SizedBox(
+                  height: 40,
+                  child: Center(
+                    child: Text(
+                      'Select accent',
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: Theme.of(context).textTheme.headline6!.copyWith(height: 1),
+                    ),
+                  ),
+                ),
+                const _AccentContainer(),
               ],
             ),
           ),
@@ -76,15 +79,23 @@ class _ColorBox extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final color = context.findAncestorWidgetOfExactType<ColorScreen>()!.color;
-    return Padding(
-      padding: const EdgeInsets.all(12),
-      child: ColoredBox(
-        color: color,
-        child: Center(
-          child: Text(
-            color.toString(),
-            style: const TextStyle(
-              backgroundColor: Colors.white,
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(12),
+        child: SizedBox(
+          width: 200,
+          child: SizedBox.expand(
+            child: DecoratedBox(
+              decoration: BoxDecoration(
+                color: color,
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(
+                  width: 5,
+                  color: color.withOpacity(0.5),
+                  style: BorderStyle.solid,
+                ),
+                boxShadow: kElevationToShadow[6],
+              ),
             ),
           ),
         ),
@@ -94,8 +105,8 @@ class _ColorBox extends StatelessWidget {
 }
 
 @immutable
-class _AccentWrapList extends StatelessWidget {
-  const _AccentWrapList({
+class _AccentContainer extends StatelessWidget {
+  const _AccentContainer({
     Key? key,
   }) : super(key: key);
 
@@ -105,23 +116,97 @@ class _AccentWrapList extends StatelessWidget {
     final color = parent.color;
     final colorName = parent.colorName;
     return Center(
-      child: Wrap(
-        children: <Widget>[
-          _AccentChip(
-            colorName: colorName,
-            accent: 50,
-            color: color,
+      child: SizedBox(
+        height: 75,
+        child: ShaderMask(
+          blendMode: BlendMode.dstIn,
+          shaderCallback: (bounds) => LinearGradient(
+            begin: AlignmentDirectional.centerStart,
+            end: AlignmentDirectional.centerEnd,
+            stops: const <double>[
+              0,
+              0.1,
+              0.2,
+              0.8,
+              0.9,
+              1,
+            ],
+            colors: <Color>[
+              Colors.transparent,
+              Colors.white.withOpacity(0.5),
+              Colors.white,
+              Colors.white,
+              Colors.white.withOpacity(0.5),
+              Colors.transparent,
+            ],
+          ).createShader(
+            bounds.shift(Offset(-bounds.left, -bounds.top)),
+            textDirection: Directionality.of(context),
           ),
-          for (var i = 100; i < 1000; i = i + 100)
-            _AccentChip(
-              colorName: colorName,
-              color: color,
-              accent: i,
-            ),
-        ],
+          child: _AccentList(colorName: colorName, color: color),
+        ),
       ),
     );
   }
+}
+
+class _AccentList extends StatefulWidget {
+  const _AccentList({
+    required final this.colorName,
+    required final this.color,
+    Key? key,
+  }) : super(key: key);
+
+  final String colorName;
+  final MaterialColor color;
+
+  @override
+  State<StatefulWidget> createState() => _AccentListState();
+}
+
+class _AccentListState extends State<_AccentList> {
+  final ScrollBehavior scrollBehavior = const _AccentListScrollBehavior();
+  final ScrollController controller = ScrollController();
+
+  @override
+  Widget build(BuildContext context) => ScrollConfiguration(
+        behavior: scrollBehavior,
+        child: ListView(
+          controller: controller,
+          scrollDirection: Axis.horizontal,
+          physics: const BouncingScrollPhysics(),
+          padding: const EdgeInsets.symmetric(horizontal: 50),
+          itemExtent: 75,
+          children: <Widget>[
+            _AccentChip(
+              colorName: widget.colorName,
+              accent: 50,
+              color: widget.color,
+            ),
+            for (var i = 100; i < 1000; i = i + 100)
+              _AccentChip(
+                colorName: widget.colorName,
+                color: widget.color,
+                accent: i,
+              ),
+          ],
+        ),
+      );
+}
+
+class _AccentListScrollBehavior extends MaterialScrollBehavior {
+  const _AccentListScrollBehavior()
+      : super(
+          androidOverscrollIndicator: AndroidOverscrollIndicator.stretch,
+        );
+
+  // Override behavior methods and getters like dragDevices
+  @override
+  Set<PointerDeviceKind> get dragDevices => {
+        PointerDeviceKind.touch,
+        PointerDeviceKind.mouse,
+        PointerDeviceKind.stylus,
+      };
 }
 
 @immutable
@@ -138,12 +223,9 @@ class _AccentChip extends StatelessWidget {
   final int accent;
 
   @override
-  Widget build(BuildContext context) => Padding(
-        padding: const EdgeInsets.all(8),
-        child: ActionChip(
-          label: Text('$colorName[$accent]'),
-          padding: const EdgeInsets.all(8),
-          backgroundColor: color[accent],
+  Widget build(BuildContext context) => SizedBox.square(
+        dimension: 75,
+        child: IconButton(
           onPressed: () => AppRouter.navigate(
             context,
             (configuration) => configuration.add(
@@ -153,6 +235,9 @@ class _AccentChip extends StatelessWidget {
                 color: color,
               ),
             ),
+          ),
+          icon: CircleAvatar(
+            backgroundColor: color[accent],
           ),
         ),
       );

@@ -11,12 +11,19 @@ class HomeScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) => Scaffold(
         appBar: AppBar(
-          title: const Text('Демонстрация роутинга'),
+          title: const Text('Routing'),
+          centerTitle: true,
           actions: <Widget>[
+            IconButton(
+              icon: const Icon(Icons.info),
+              onPressed: () => AppRouter.navigate(context, (configuration) => configuration.add(AboutPage())),
+            ),
+            const SizedBox(width: 8),
             IconButton(
               icon: const Icon(Icons.settings),
               onPressed: () => AppRouter.navigate(context, (configuration) => configuration.add(SettingsPage())),
             ),
+            const SizedBox(width: 12),
           ],
         ),
         body: SafeArea(
@@ -28,22 +35,21 @@ class HomeScreen extends StatelessWidget {
                 horizontal: math.max((MediaQuery.of(context).size.width - 550) / 2, 8),
                 vertical: 14,
               ),
-              children: const <Widget>[
+              children: <Widget>[
                 SizedBox(
-                  height: 25,
+                  height: 50,
                   child: Center(
                     child: Text(
-                      'Выберите цвет',
+                      'Select color',
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
-                      style: TextStyle(
-                        fontSize: 24,
-                      ),
+                      style: Theme.of(context).textTheme.headline4!.copyWith(height: 1),
                     ),
                   ),
                 ),
-                SizedBox(
-                  height: 75,
+                const SizedBox(height: 24),
+                const SizedBox(
+                  height: 50,
                   child: _ColorsList(),
                 ),
               ],
@@ -61,33 +67,41 @@ class _ColorsList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Center(
-        child: ListView(
-          shrinkWrap: true,
-          physics: const ClampingScrollPhysics(),
-          scrollDirection: Axis.horizontal,
+        child: Row(
+          mainAxisSize: MainAxisSize.max,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
-            _ColorChip(
-              title: 'Red',
-              color: Colors.red,
-              onTap: () => AppRouter.navigate(
-                context,
-                (configuration) => configuration.add(ColorPage.red()),
+            Expanded(
+              child: _ColorChip(
+                title: 'Red',
+                color: Colors.red,
+                onTap: () => AppRouter.navigate(
+                  context,
+                  (configuration) => configuration.add(ColorPage.red()),
+                ),
               ),
             ),
-            _ColorChip(
-              title: 'Green',
-              color: Colors.green,
-              onTap: () => AppRouter.navigate(
-                context,
-                (configuration) => configuration.add(ColorPage.green()),
+            const SizedBox(width: 12),
+            Expanded(
+              child: _ColorChip(
+                title: 'Green',
+                color: Colors.green,
+                onTap: () => AppRouter.navigate(
+                  context,
+                  (configuration) => configuration.add(ColorPage.green()),
+                ),
               ),
             ),
-            _ColorChip(
-              title: 'Blue',
-              color: Colors.blue,
-              onTap: () => AppRouter.navigate(
-                context,
-                (configuration) => configuration.add(ColorPage.blue()),
+            const SizedBox(width: 12),
+            Expanded(
+              child: _ColorChip(
+                title: 'Blue',
+                color: Colors.blue,
+                onTap: () => AppRouter.navigate(
+                  context,
+                  (configuration) => configuration.add(ColorPage.blue()),
+                ),
               ),
             ),
           ],
@@ -109,13 +123,12 @@ class _ColorChip extends StatelessWidget {
   final VoidCallback onTap;
 
   @override
-  Widget build(BuildContext context) => Padding(
-        padding: const EdgeInsets.all(8),
-        child: ActionChip(
-          label: Text(title),
-          padding: const EdgeInsets.all(8),
-          backgroundColor: color,
+  Widget build(BuildContext context) => Center(
+        child: OutlinedButton(
           onPressed: onTap,
+          child: Center(
+            child: Text(title),
+          ),
         ),
       );
 }
