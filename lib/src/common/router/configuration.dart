@@ -10,7 +10,7 @@ abstract class IRouteConfiguration implements RouteInformation {
   /// Это корневая конфигурация
   bool get isRoot;
 
-  /// Предидущая конфигурация
+  /// Предыдущая конфигурация
   /// Если null - значит это корневая конфигурация
   IRouteConfiguration? get previous;
 
